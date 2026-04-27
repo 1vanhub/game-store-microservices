@@ -1,0 +1,319 @@
+{
+	"info": {
+		"_postman_id": "alnov-store-2026-complete",
+		"name": "AlnovStore - Game Top Up Microservices",
+		"description": "Koleksi API lengkap untuk AlnovStore Game Top Up Platform.\n\nTerdiri dari 3 microservice:\n- Player Service (Port 8001)\n- Game Item Service (Port 8002)\n- Order Service (Port 8003)\n\nKelompok 2 - UTS Sistem Terintegrasi Antar Layanan",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "player_service_url",
+			"value": "http://localhost:8001/api",
+			"type": "string"
+		},
+		{
+			"key": "item_service_url",
+			"value": "http://localhost:8002/api",
+			"type": "string"
+		},
+		{
+			"key": "order_service_url",
+			"value": "http://localhost:8003/api",
+			"type": "string"
+		},
+		{
+			"key": "player_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "item_id",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Player Service (Port 8001)",
+			"description": "Service untuk mengelola data player: profil, saldo wallet, dan riwayat transaksi.",
+			"item": [
+				{
+					"name": "Get Player Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{player_service_url}}/players/{{player_id}}/profile",
+							"host": ["{{player_service_url}}"],
+							"path": ["players", "{{player_id}}", "profile"]
+						},
+						"description": "Mengambil data profil player berdasarkan ID.\nDigunakan saat validasi Cek ID di halaman top up.\n\nResponse: id, name, email, wallet_balance, created_at"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Player Balance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{player_service_url}}/players/{{player_id}}/balance",
+							"host": ["{{player_service_url}}"],
+							"path": ["players", "{{player_id}}", "balance"]
+						},
+						"description": "Mengecek saldo wallet player.\nDigunakan sebelum proses pembelian untuk memastikan saldo cukup."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{player_service_url}}/players/{{player_id}}/transactions",
+							"host": ["{{player_service_url}}"],
+							"path": ["players", "{{player_id}}", "transactions"]
+						},
+						"description": "Mengambil riwayat transaksi player.\nConsumer endpoint - memanggil Order Service untuk mendapatkan data pesanan."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Game Item Service (Port 8002)",
+			"description": "Service untuk mengelola data item/currency game: detail item, stok, dan trending items.",
+			"item": [
+				{
+					"name": "Get Trending Items",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{item_service_url}}/items/trending",
+							"host": ["{{item_service_url}}"],
+							"path": ["items", "trending"]
+						},
+						"description": "Mengambil daftar item trending/populer.\nDigunakan di halaman top up untuk menampilkan pilihan nominal.\n\nResponse: array of { item: { id, name, price }, order_count }"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Item Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{item_service_url}}/items/{{item_id}}",
+							"host": ["{{item_service_url}}"],
+							"path": ["items", "{{item_id}}"]
+						},
+						"description": "Mengambil detail item berdasarkan ID.\n\nResponse: id, name, price, stock, description"
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Stock",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{item_service_url}}/items/{{item_id}}/validate-stock?quantity=1",
+							"host": ["{{item_service_url}}"],
+							"path": ["items", "{{item_id}}", "validate-stock"],
+							"query": [
+								{ "key": "quantity", "value": "1" }
+							]
+						},
+						"description": "Memvalidasi apakah stok item mencukupi untuk jumlah yang diminta.\nDigunakan oleh Order Service sebelum membuat pesanan."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Order Service (Port 8003)",
+			"description": "Service untuk mengelola pesanan: membuat order, melihat pesanan player, dan rekap penjualan.",
+			"item": [
+				{
+					"name": "Create Order (Beli Sekarang)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"player_id\": 1,\n    \"game_item_id\": 1,\n    \"quantity\": 1\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{order_service_url}}/orders",
+							"host": ["{{order_service_url}}"],
+							"path": ["orders"]
+						},
+						"description": "Membuat pesanan baru (top up).\nDipanggil saat user klik tombol 'Beli Sekarang'.\n\nBody:\n- player_id: ID player yang melakukan top up\n- game_item_id: ID item/nominal yang dipilih\n- quantity: Jumlah pembelian\n\nFlow:\n1. Validasi player via Player Service\n2. Validasi stok via Game Item Service\n3. Proses pembayaran (potong saldo)\n4. Simpan order"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Player Orders (Lacak Pesanan)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{order_service_url}}/orders/player/{{player_id}}",
+							"host": ["{{order_service_url}}"],
+							"path": ["orders", "player", "{{player_id}}"]
+						},
+						"description": "Mengambil semua pesanan milik player tertentu.\nDigunakan di fitur 'Lacak Pesanan'.\n\nResponse: array of { id, player_id, game_item_id, quantity, total_price, status, created_at }"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sales Recap (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{order_service_url}}/orders/recap",
+							"host": ["{{order_service_url}}"],
+							"path": ["orders", "recap"]
+						},
+						"description": "Mengambil rekap penjualan keseluruhan.\nDigunakan di dashboard Admin.\n\nResponse: total_orders, total_revenue, orders_by_status"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Alur Top Up (End-to-End)",
+			"description": "Simulasi alur lengkap pembelian top up dari awal hingga selesai.",
+			"item": [
+				{
+					"name": "Step 1 - Cek ID Player",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{player_service_url}}/players/1/profile",
+							"host": ["{{player_service_url}}"],
+							"path": ["players", "1", "profile"]
+						},
+						"description": "LANGKAH 1: Validasi ID player sebelum top up.\nUser memasukkan User ID dan Zone ID, lalu klik 'Cek ID'."
+					},
+					"response": []
+				},
+				{
+					"name": "Step 2 - Cek Saldo Player",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{player_service_url}}/players/1/balance",
+							"host": ["{{player_service_url}}"],
+							"path": ["players", "1", "balance"]
+						},
+						"description": "LANGKAH 2: Cek apakah saldo wallet player mencukupi untuk nominal yang dipilih."
+					},
+					"response": []
+				},
+				{
+					"name": "Step 3 - Ambil Daftar Nominal",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{item_service_url}}/items/trending",
+							"host": ["{{item_service_url}}"],
+							"path": ["items", "trending"]
+						},
+						"description": "LANGKAH 3: Ambil daftar nominal/item yang tersedia untuk ditampilkan di grid pilihan."
+					},
+					"response": []
+				},
+				{
+					"name": "Step 4 - Validasi Stok Item",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{item_service_url}}/items/1/validate-stock?quantity=1",
+							"host": ["{{item_service_url}}"],
+							"path": ["items", "1", "validate-stock"],
+							"query": [
+								{ "key": "quantity", "value": "1" }
+							]
+						},
+						"description": "LANGKAH 4: Validasi apakah stok item yang dipilih masih tersedia."
+					},
+					"response": []
+				},
+				{
+					"name": "Step 5 - Beli Sekarang (Create Order)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"player_id\": 1,\n    \"game_item_id\": 1,\n    \"quantity\": 1\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{order_service_url}}/orders",
+							"host": ["{{order_service_url}}"],
+							"path": ["orders"]
+						},
+						"description": "LANGKAH 5: Proses pembelian! Membuat order baru.\nOrder Service akan memanggil Player Service dan Game Item Service secara internal."
+					},
+					"response": []
+				},
+				{
+					"name": "Step 6 - Lacak Pesanan",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{order_service_url}}/orders/player/1",
+							"host": ["{{order_service_url}}"],
+							"path": ["orders", "player", "1"]
+						},
+						"description": "LANGKAH 6: Setelah pembelian, user bisa lacak pesanan untuk melihat status."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

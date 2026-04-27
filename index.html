@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="id" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlnovStore - Premium Game Top Up</title>
+    
+    <!-- Google Fonts: Outfit untuk kesan modern gaming yang premium -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        bgBase: '#09090b', /* Zinc 950 */
+                        bgSurface: '#18181b', /* Zinc 900 */
+                        primary: '#f97316', /* Orange 500 */
+                        primaryHover: '#ea580c',
+                        accent: '#3b82f6', /* Blue 500 */
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 10px rgba(249,115,22,0.2)' },
+                            '100%': { boxShadow: '0 0 30px rgba(249,115,22,0.6)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Vanilla Tilt JS untuk Efek 3D Bergerak -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+    
+    <!-- Swiper JS & CSS untuk Banner -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <style>
+        body { 
+            background-color: #09090b; 
+            color: white; 
+            overflow-x: hidden; 
+        }
+        
+        .mask-image-linear-left {
+            -webkit-mask-image: linear-gradient(to right, transparent, black 30%);
+            mask-image: linear-gradient(to right, transparent, black 30%);
+        }
+        
+        /* Utility Glassmorphism Tingkat Lanjut */
+        .glass {
+            background: rgba(24, 24, 27, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Hide scrollbar filter but keep functional */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Setup 3D Card Hover Effects */
+        .game-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .game-card-inner {
+            transform: translateZ(40px); /* Bikin teks melayang ke depan (3D Pop out) */
+        }
+        .game-card-image {
+            transform: translateZ(10px);
+        }
+
+        /* Modal animation */
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.92) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        /* Custom scrollbar for modal */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,0.5); }
+    </style>
+</head>
+<body class="antialiased selection:bg-primary selection:text-white">
+
+    <!-- 1. Ambient Background (Blob Animasi) -->
+    <div class="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden opacity-60">
+        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-primary/10 mix-blend-screen filter blur-[100px] animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[40vw] h-[60vw] max-w-[500px] max-h-[700px] rounded-full bg-accent/10 mix-blend-screen filter blur-[120px] animate-blob" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[60vw] h-[50vw] max-w-[800px] max-h-[600px] rounded-full bg-purple-500/10 mix-blend-screen filter blur-[100px] animate-blob" style="animation-delay: 4s;"></div>
+    </div>
+
+    <!-- 2. Navbar Premium Glassmorphism -->
+    <nav class="fixed w-full top-0 z-50 glass transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+            <!-- Logo Interaktif -->
+            <a href="#" class="flex items-center gap-3 group">
+                <img src="assets/logo.png" alt="AlnovStore Logo" class="w-10 h-10 rounded-xl object-cover shadow-[0_0_15px_rgba(249,115,22,0.4)] group-hover:scale-110 transition-transform duration-300">
+                <span class="font-black text-xl tracking-wide">Alnov<span class="text-primary">Store</span></span>
+            </a>
+            
+            <div class="hidden md:flex items-center gap-6 font-semibold text-sm text-gray-400">
+                <a href="#" class="text-white relative after:content-[''] after:absolute after:-bottom-1.5 after:left-0 after:w-full after:h-[2px] after:bg-primary after:rounded-full">Beranda</a>
+                <a href="#kategori" class="hover:text-white transition-colors">Daftar Game</a>
+                <a href="#" onclick="openModal('modal-lacak'); return false;" class="hover:text-white transition-colors">Lacak Pesanan</a>
+                <a href="#" onclick="openModal('modal-cek-player'); return false;" class="hover:text-white transition-colors">Cek Player ID</a>
+                <a href="#" class="text-primary/80 hover:text-primary transition-colors flex items-center gap-1"><i class="ph-fill ph-shield-star"></i> Admin</a>
+            </div>
+
+            <!-- Profile & Search Actions -->
+            <div class="flex items-center gap-3 sm:gap-4 relative">
+                <div class="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 hover:bg-white/10 transition-colors cursor-text group relative">
+                    <i class="ph-bold ph-magnifying-glass text-gray-400 group-hover:text-primary transition-colors"></i>
+                    <input type="text" id="search-game" placeholder="Cari game..." class="bg-transparent border-none outline-none text-sm text-white w-32 focus:w-48 transition-all duration-300 placeholder-gray-500">
+                </div>
+                
+                <div id="auth-section" class="flex items-center gap-3">
+                    <button onclick="openModal('modal-login')" class="bg-primary hover:bg-primaryHover text-black font-bold px-4 sm:px-6 py-2 rounded-full text-sm transition-all shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:scale-105" id="btn-login-nav">Masuk</button>
+                    
+                    <div id="user-menu" class="hidden flex items-center gap-3 sm:gap-4">
+                        <div class="relative hidden sm:block">
+                            <button onclick="toggleDropdown('notif-dropdown')" class="bg-white/5 hover:bg-white/10 border border-white/10 w-10 h-10 rounded-full flex items-center justify-center transition-colors relative">
+                                <i class="ph-fill ph-bell text-gray-300 text-lg"></i>
+                                <span class="absolute top-2 right-2.5 w-2 h-2 bg-primary rounded-full animate-ping"></span>
+                                <span class="absolute top-2 right-2.5 w-2 h-2 bg-primary rounded-full"></span>
+                            </button>
+                            <div id="notif-dropdown" class="hidden absolute right-0 mt-3 w-64 bg-bgSurface border border-white/10 rounded-xl shadow-2xl z-[60] overflow-hidden">
+                                <div class="p-3 border-b border-white/5 font-bold text-sm">Notifikasi</div>
+                                <div class="max-h-60 overflow-y-auto p-2" id="nav-notif-list">
+                                    <div class="text-center py-4"><p class="text-xs text-gray-500">Belum ada notifikasi</p></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <div onclick="toggleDropdown('profile-dropdown')" class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-accent p-[2px] cursor-pointer hover:scale-105 transition-transform shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ProGamer&backgroundColor=18181b" id="nav-avatar" class="w-full h-full rounded-full border-2 border-bgBase" alt="User">
+                            </div>
+                            <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-48 bg-bgSurface border border-white/10 rounded-xl shadow-2xl z-[60] overflow-hidden">
+                                <div class="p-3 border-b border-white/5">
+                                    <p class="font-bold text-sm text-white" id="nav-username">Noval Gaming</p>
+                                    <p class="text-xs text-primary font-semibold" id="nav-wallet">Rp 500.000</p>
+                                </div>
+                                <div class="p-2">
+                                    <a href="#" onclick="openModal('modal-lacak'); return false;" class="block p-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"><i class="ph-fill ph-clock-counter-clockwise mr-2"></i>Riwayat Pesanan</a>
+                                    <a href="#" onclick="handleLogout()" class="block p-2 text-xs text-red-400 hover:text-red-300 hover:bg-white/5 rounded-lg transition-colors mt-1"><i class="ph-fill ph-sign-out mr-2"></i>Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 3. Hero Section (Carousel Banner ala Oura Store) -->
+    <section class="relative pt-24 pb-10 px-4 z-10">
+        <div class="max-w-[1300px] mx-auto">
+            <!-- Swiper Container (Fix aspect ratio 16:9 agar tidak ada crop & full screen) -->
+            <div class="swiper promoSwiper w-full aspect-video rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group">
+                <div class="swiper-wrapper">
+                    
+                    <!-- SLIDE 1: Promo Landscape Utama (AlnovStore) -->
+                    <div class="swiper-slide relative bg-black cursor-pointer" onclick="window.location.href='#kategori'">
+                        <!-- Main Landscape Image (Full & Tidak Terpotong) -->
+                        <img src="assets/promo_main.png" class="w-full h-full object-cover object-center drop-shadow-2xl" alt="Promo Spesial AlnovStore" onerror="this.src='assets/pubg_cover.png'">
+                        
+                        <!-- Overlay Tombol -->
+                        <div class="absolute bottom-6 md:bottom-10 left-0 right-0 z-20 flex justify-center pointer-events-none">
+                            <span class="bg-primary/90 text-black font-black px-4 md:px-6 py-2 rounded-full text-xs md:text-sm shadow-[0_0_15px_rgba(249,115,22,0.5)] animate-pulse border border-yellow-300 pointer-events-auto">
+                                KLIK UNTUK TOP UP
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- SLIDE 2: Banner Standar (PUBG) -->
+                    <div class="swiper-slide relative">
+                        <img src="assets/pubg_cover.png" class="absolute inset-0 w-full h-full object-cover object-center" alt="Banner PUBG">
+                        <div class="absolute inset-0 bg-gradient-to-t from-bgBase via-bgBase/60 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-bgBase via-bgBase/80 to-transparent w-full md:w-3/4"></div>
+                        
+                        <div class="absolute inset-0 p-8 sm:p-16 flex flex-col justify-center w-full lg:w-3/4 z-20">
+                            <div class="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 text-primary text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full mb-5 w-fit">
+                                <i class="ph-fill ph-fire text-lg"></i> FLASH SALE 50%
+                            </div>
+                            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-5 drop-shadow-2xl">
+                                Top Up Game Favoritmu <br/> <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-400">Lebih Cepat & Aman</span>
+                            </h1>
+                            <button onclick="document.getElementById('kategori').scrollIntoView({behavior: 'smooth'})" class="bg-primary hover:bg-primaryHover text-black font-bold py-3 px-8 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.4)] w-fit flex items-center gap-2">
+                                Cek Katalog <i class="ph-bold ph-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SLIDE 3: Banner Standar (MLBB) -->
+                    <div class="swiper-slide relative">
+                        <img src="assets/mlbb_cover.png" class="absolute inset-0 w-full h-full object-cover object-top" alt="Banner MLBB">
+                        <div class="absolute inset-0 bg-gradient-to-t from-bgBase via-bgBase/60 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-bgBase via-bgBase/80 to-transparent w-full md:w-3/4"></div>
+                        
+                        <div class="absolute inset-0 p-8 sm:p-16 flex flex-col justify-center w-full lg:w-3/4 z-20">
+                            <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/50 text-blue-400 text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full mb-5 w-fit">
+                                <i class="ph-fill ph-star text-lg"></i> EVENT TERBARU
+                            </div>
+                            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-5 drop-shadow-2xl">
+                                Dapatkan Skin Epik <br/> <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Harga Spesial</span>
+                            </h1>
+                            <button onclick="document.getElementById('kategori').scrollIntoView({behavior: 'smooth'})" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] w-fit flex items-center gap-2">
+                                Top Up Sekarang <i class="ph-bold ph-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- Swiper Navigation -->
+                <div class="swiper-button-prev !text-white !w-12 !h-12 bg-black/40 rounded-full backdrop-blur-md hover:bg-primary transition-colors after:!text-xl border border-white/10 opacity-0 group-hover:opacity-100"></div>
+                <div class="swiper-button-next !text-white !w-12 !h-12 bg-black/40 rounded-full backdrop-blur-md hover:bg-primary transition-colors after:!text-xl border border-white/10 opacity-0 group-hover:opacity-100"></div>
+                <!-- Swiper Pagination -->
+                <div class="swiper-pagination !bottom-4"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Categories & Complex 3D Game Grid -->
+    <section id="kategori" class="py-10 px-4 relative z-10 min-h-screen">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Section Header & Filter Kategori Dinamis -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                    <h2 class="text-3xl font-black mb-2 flex items-center gap-3 drop-shadow-md">
+                        <i class="ph-fill ph-squares-four text-primary drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"></i> 
+                        Daftar Game
+                    </h2>
+                    <p class="text-gray-400 font-medium">Pilih game favoritmu dari katalog lengkap kami.</p>
+                </div>
+                
+                <!-- Filter Pills -->
+                <div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 w-full md:w-auto">
+                    <button onclick="setCategory('Semua', this)" class="cat-btn px-6 py-2.5 rounded-full text-sm font-bold bg-primary text-black shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all shrink-0 border border-transparent">Semua</button>
+                    <button onclick="setCategory('Populer', this)" class="cat-btn px-6 py-2.5 rounded-full text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5 transition-all shrink-0">Populer</button>
+                    <button onclick="setCategory('Mobile', this)" class="cat-btn px-6 py-2.5 rounded-full text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5 transition-all shrink-0">Mobile Games</button>
+                    <button onclick="setCategory('PC', this)" class="cat-btn px-6 py-2.5 rounded-full text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5 transition-all shrink-0">PC Games</button>
+                    <button onclick="setCategory('Voucher', this)" class="cat-btn px-6 py-2.5 rounded-full text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5 transition-all shrink-0">Voucher</button>
+                </div>
+            </div>
+
+            <!-- GRID AREA (Dirender oleh JS) -->
+            <!-- Link game diarahkan ke topup-page.html yang sudah Anda buat sebelumnya -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8" id="game-grid">
+                <!-- Cards injected via JS -->
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 5. Footer Premium -->
+    <footer class="border-t border-white/5 bg-bgSurface/40 mt-10 relative z-10 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+                <div class="md:col-span-2">
+                    <a href="#" class="flex items-center gap-3 mb-6">
+                        <img src="assets/logo.png" alt="AlnovStore Logo" class="w-12 h-12 rounded-xl object-cover shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+                        <span class="font-black text-2xl tracking-wide">Alnov<span class="text-primary">Store</span></span>
+                    </a>
+                    <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
+                        Platform penyedia layanan top up game dan voucher digital termurah, terpercaya, dan paling responsif di Indonesia.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white mb-6">Peta Situs</h3>
+                    <ul class="space-y-3 text-sm text-gray-400 font-medium">
+                        <li><a href="#" class="hover:text-primary transition-colors">Beranda</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Daftar Game</a></li>
+                        <li><a href="#" onclick="openModal('modal-lacak'); return false;" class="hover:text-primary transition-colors">Lacak Pesanan</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Hubungi Kami</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <!-- Kolom Sosial Media Dihapus sesuai request -->
+                </div>
+            </div>
+            <div class="border-t border-white/5 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 font-medium">
+                <p>&copy; 2026 AlnovStore. All rights reserved.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:text-white transition-colors">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-white transition-colors">Syarat & Ketentuan</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL: Login -->
+    <div id="modal-login" class="fixed inset-0 z-[100] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);">
+        <div class="bg-bgSurface border border-white/10 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-[fadeInScale_0.3s_ease-out]" onclick="event.stopPropagation()">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <h3 class="font-bold text-lg text-white">Masuk ke AlnovStore</h3>
+                <button onclick="closeModal('modal-login')" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="ph-bold ph-x text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <!-- Tabs -->
+                <div class="flex border-b border-white/10 mb-6">
+                    <button class="flex-1 pb-3 text-sm font-bold border-b-2 border-primary text-primary transition-colors" id="tab-pelanggan" onclick="switchLoginTab('pelanggan')">Pelanggan</button>
+                    <button class="flex-1 pb-3 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-300 transition-colors" id="tab-admin" onclick="switchLoginTab('admin')">Admin</button>
+                </div>
+
+                <!-- Tab: Pelanggan -->
+                <div id="content-pelanggan" class="block">
+                    <div class="text-center mb-6">
+                        <img src="assets/logo.png" class="w-16 h-16 mx-auto mb-4 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+                        <p class="text-sm text-gray-400">Masuk untuk melihat riwayat transaksi dan saldo dompet Anda.</p>
+                    </div>
+                    <button onclick="mockGoogleLogin()" class="w-full bg-white hover:bg-gray-100 text-black font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-3 transition-colors shadow-lg">
+                        <img src="https://img.icons8.com/color/48/google-logo.png" class="w-6 h-6">
+                        Lanjutkan dengan Google
+                    </button>
+                </div>
+
+                <!-- Tab: Admin -->
+                <div id="content-admin" class="hidden">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Username Admin</label>
+                            <input type="text" id="admin-user" placeholder="admin" class="w-full bg-darkInput border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-primary transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Password</label>
+                            <input type="password" id="admin-pass" placeholder="***" class="w-full bg-darkInput border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-primary transition-colors">
+                        </div>
+                        <button onclick="mockAdminLogin()" class="w-full bg-primary hover:bg-primaryHover text-black font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(249,115,22,0.3)] mt-2 w-full">
+                            Login Admin
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Lacak Pesanan -->
+    <div id="modal-lacak" class="fixed inset-0 z-[100] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);">
+        <div class="bg-bgSurface border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-hidden animate-[fadeInScale_0.25s_ease-out]" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-5 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                        <i class="ph-fill ph-package text-primary text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-white">Lacak Pesanan</h3>
+                        <p class="text-xs text-gray-400">Cek status pesananmu</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-lacak')" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <!-- Body -->
+            <div class="p-5">
+                <div class="flex gap-3 mb-5">
+                    <input type="number" id="lacak-player-id" placeholder="Masukkan Player ID" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                    <button onclick="lacakPesanan()" class="bg-primary hover:bg-primaryHover text-black font-bold px-6 rounded-xl text-sm transition-colors shrink-0 shadow-[0_0_15px_rgba(249,115,22,0.3)]">Cari</button>
+                </div>
+                <div id="lacak-result" class="space-y-3 max-h-[50vh] overflow-y-auto pr-1 custom-scroll">
+                    <div class="text-center py-8">
+                        <i class="ph ph-magnifying-glass text-4xl text-gray-600 mb-3 block"></i>
+                        <p class="text-sm text-gray-500">Masukkan Player ID untuk melihat riwayat pesanan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Cek Player ID -->
+    <div id="modal-cek-player" class="fixed inset-0 z-[100] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);">
+        <div class="bg-bgSurface border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-[fadeInScale_0.25s_ease-out]" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-5 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
+                        <i class="ph-fill ph-user-circle text-accent text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-white">Cek Player ID</h3>
+                        <p class="text-xs text-gray-400">Validasi akun game kamu</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-cek-player')" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <!-- Body -->
+            <div class="p-5">
+                <div class="flex gap-3 mb-5">
+                    <input type="number" id="cek-player-id" placeholder="Masukkan Player ID" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                    <button onclick="cekPlayerId()" class="bg-accent hover:bg-blue-600 text-white font-bold px-6 rounded-xl text-sm transition-colors shrink-0 shadow-[0_0_15px_rgba(59,130,246,0.3)]">Cari</button>
+                </div>
+                <div id="cek-player-result">
+                    <div class="text-center py-8">
+                        <i class="ph ph-user-circle text-4xl text-gray-600 mb-3 block"></i>
+                        <p class="text-sm text-gray-500">Masukkan Player ID untuk melihat profil</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT & 3D LOGIC -->
+    <script>
+        // Data Game Katalog
+        const games = [
+            { id: 1, title: "Mobile Legends", dev: "Moonton", img: "assets/mlbb_cover.png", icon: "https://img.icons8.com/color/240/mobile-legends-bang-bang.png", type: "Mobile" },
+            { id: 2, title: "Free Fire", dev: "Garena", img: "assets/ff_cover.png", icon: "https://img.icons8.com/color/240/free-fire.png", type: "Mobile" },
+            { id: 3, title: "Valorant", dev: "Riot Games", img: "assets/valorant_cover.png", icon: "https://img.icons8.com/color/240/valorant.png", type: "PC" },
+            { id: 4, title: "PUBG Mobile", dev: "Tencent", img: "assets/pubg_cover.png", icon: "https://img.icons8.com/color/240/pubg.png", type: "Mobile" },
+            { id: 5, title: "League of Legends", dev: "Riot Games", img: "https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?q=80&w=400&h=600&fit=crop", icon: "https://img.icons8.com/color/240/league-of-legends.png", type: "PC" },
+        ];
+
+        let currentCategory = 'Semua';
+
+        // Build topup URL with game data as query params
+        function buildTopupUrl(game) {
+            const params = new URLSearchParams({
+                game: game.title,
+                dev: game.dev,
+                cover: game.img,
+                icon: game.icon
+            });
+            return `topup.html?${params.toString()}`;
+        }
+
+        // Render UI Cards
+        function renderGames(searchQuery = '') {
+            const grid = document.getElementById('game-grid');
+            
+            let filteredGames = games;
+            
+            // Filter by category
+            if (currentCategory !== 'Semua') {
+                if (currentCategory === 'Populer') {
+                    // Dummy popular: first 3 items
+                    filteredGames = games.slice(0, 3);
+                } else if (currentCategory === 'Voucher') {
+                    // Dummy voucher: empty for now
+                    filteredGames = [];
+                } else {
+                    filteredGames = games.filter(g => g.type.includes(currentCategory));
+                }
+            }
+
+            // Filter by search query
+            if (searchQuery) {
+                filteredGames = filteredGames.filter(g => g.title.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+
+            if (filteredGames.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <i class="ph ph-ghost text-6xl text-white/20 mb-4 block"></i>
+                        <p class="text-gray-400 font-medium">${searchQuery ? 'Game tidak ditemukan' : 'Belum ada item pada kategori ini'}</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = filteredGames.map((game, index) => {
+                // Efek stagger delay untuk animasi masuk awal
+                const delay = index * 50;
+                const topupUrl = buildTopupUrl(game);
+                
+                return `
+                <!-- Pengaturan Link menuju Halaman Top Up -->
+                <a href="${topupUrl}" class="block game-card group relative rounded-2xl overflow-hidden aspect-[3/4] bg-bgSurface border border-white/10 cursor-pointer shadow-lg animate-float" style="animation-delay: ${delay}ms; animation-duration: 8s;">
+                    
+                    <!-- Cover Image dengan Parallax Transform -->
+                    <img src="${game.img}" alt="${game.title}" class="game-card-image absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110">
+                    
+                    <!-- Gradient Bawah ke Atas -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/50 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    <!-- Border Menyala Saat Hover -->
+                    <div class="absolute inset-0 border-2 border-transparent group-hover:border-primary/80 rounded-2xl transition-colors duration-300 z-20 mix-blend-screen shadow-[inset_0_0_20px_rgba(249,115,22,0)] group-hover:shadow-[inset_0_0_20px_rgba(249,115,22,0.3)]"></div>
+
+                    <!-- Game Icon Badge -->
+                    <div class="absolute top-3 right-3 w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg z-20 bg-bgSurface">
+                        <img src="${game.icon}" alt="${game.title} icon" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                    </div>
+
+                    <!-- Teks dan Konten (Didorong ke Depan dalam Ruang 3D) -->
+                    <div class="absolute inset-0 p-4 sm:p-5 flex flex-col justify-end game-card-inner z-10 pointer-events-none">
+                        
+                        <!-- Badge Device Type -->
+                        <div class="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full text-[10px] font-bold text-gray-300 flex items-center gap-1.5 transform -translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out shadow-lg">
+                            ${game.type.includes('Mobile') ? '<i class="ph-bold ph-device-mobile"></i>' : '<i class="ph-bold ph-desktop"></i>'} 
+                            ${game.type}
+                        </div>
+                        
+                        <!-- Title & Developer -->
+                        <div class="transform translate-y-6 group-hover:translate-y-0 transition-transform duration-300 ease-out">
+                            <h3 class="text-base sm:text-xl font-black text-white leading-tight mb-1 drop-shadow-lg">${game.title}</h3>
+                            <p class="text-xs sm:text-sm text-primary font-bold drop-shadow-md tracking-wide uppercase">${game.dev}</p>
+                        </div>
+                        
+                        <!-- CTA Button (Muncul dari Bawah) -->
+                        <div class="mt-4 overflow-hidden h-0 group-hover:h-11 transition-all duration-300 ease-out">
+                            <div class="w-full bg-primary hover:bg-primaryHover text-black text-xs sm:text-sm font-black py-2.5 rounded-xl text-center shadow-[0_0_15px_rgba(249,115,22,0.5)] flex items-center justify-center gap-1.5 transition-colors">
+                                <i class="ph-bold ph-shopping-cart-simple text-base"></i> Top Up
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            `}).join('');
+
+            // Inisialisasi library VanillaTilt JS untuk efek 3D Card
+            VanillaTilt.init(document.querySelectorAll(".game-card"), {
+                max: 18,              // Rotasi maksimal
+                speed: 400,           // Kecepatan transisi
+                glare: true,          // Efek kilauan kaca
+                "max-glare": 0.4,     // Intensitas kilauan
+                scale: 1.05,          // Membesar saat di-hover
+                easing: "cubic-bezier(.03,.98,.52,.99)",
+            });
+        }
+
+        // Handle Category Selection
+        window.setCategory = function(cat, btn) {
+            currentCategory = cat;
+            
+            // Update active styling
+            document.querySelectorAll('.cat-btn').forEach(el => {
+                el.classList.remove('bg-primary', 'text-black', 'shadow-[0_0_15px_rgba(249,115,22,0.3)]', 'border-transparent');
+                el.classList.add('bg-white/5', 'text-gray-300', 'border-white/5');
+            });
+            
+            btn.classList.add('bg-primary', 'text-black', 'shadow-[0_0_15px_rgba(249,115,22,0.3)]', 'border-transparent');
+            btn.classList.remove('bg-white/5', 'text-gray-300', 'border-white/5');
+            
+            renderGames(document.getElementById('search-game')?.value);
+        };
+
+        // Event listener for search
+        document.getElementById('search-game')?.addEventListener('input', (e) => {
+            renderGames(e.target.value);
+        });
+
+        // Toggle dropdowns (Notification & Profile)
+        window.toggleDropdown = function(id) {
+            const el = document.getElementById(id);
+            const isHidden = el.classList.contains('hidden');
+            
+            // Close all dropdowns first
+            document.getElementById('notif-dropdown')?.classList.add('hidden');
+            document.getElementById('profile-dropdown')?.classList.add('hidden');
+            
+            if (isHidden) {
+                el.classList.remove('hidden');
+            }
+        };
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.relative')) {
+                document.getElementById('notif-dropdown')?.classList.add('hidden');
+                document.getElementById('profile-dropdown')?.classList.add('hidden');
+            }
+        });
+
+        // Efek Navbar saat Scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                nav.classList.add('shadow-[0_10px_30px_rgba(0,0,0,0.5)]');
+                nav.style.background = 'rgba(9, 9, 11, 0.85)';
+            } else {
+                nav.classList.remove('shadow-[0_10px_30px_rgba(0,0,0,0.5)]');
+                nav.style.background = 'rgba(24, 24, 27, 0.5)';
+            }
+        });
+
+        // Inisialisasi Swiper Banner
+        document.addEventListener('DOMContentLoaded', () => {
+            const swiper = new Swiper('.promoSwiper', {
+                loop: true,
+                autoplay: {
+                    delay: 4000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+            });
+            renderGames();
+            checkAuth();
+        });
+
+        // --- AUTH & LOGIN LOGIC ---
+        function checkAuth() {
+            const session = JSON.parse(localStorage.getItem('alnovSession'));
+            const btnLogin = document.getElementById('btn-login-nav');
+            const userMenu = document.getElementById('user-menu');
+            const navAvatar = document.getElementById('nav-avatar');
+            const navUsername = document.getElementById('nav-username');
+            let playerBalance = parseFloat(localStorage.getItem('alnovWallet') || '500000');
+
+            if (session) {
+                if (btnLogin) btnLogin.classList.add('hidden');
+                if (userMenu) {
+                    userMenu.classList.remove('hidden');
+                    userMenu.classList.add('flex');
+                }
+                if (navUsername) navUsername.innerText = session.name;
+                
+                if (session.role === 'admin') {
+                    if (navAvatar) navAvatar.src = "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin&backgroundColor=ff4b4b";
+                    document.getElementById('nav-wallet').innerText = "Admin Dashboard";
+                } else {
+                    if (navAvatar) navAvatar.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.name.replace(/ /g, '')}&backgroundColor=18181b`;
+                    document.getElementById('nav-wallet').innerText = "Rp " + playerBalance.toLocaleString('id-ID');
+                }
+            } else {
+                if (btnLogin) btnLogin.classList.remove('hidden');
+                if (userMenu) {
+                    userMenu.classList.add('hidden');
+                    userMenu.classList.remove('flex');
+                }
+            }
+        }
+
+        window.switchLoginTab = function(tab) {
+            const tabPelanggan = document.getElementById('tab-pelanggan');
+            const tabAdmin = document.getElementById('tab-admin');
+            const contentPelanggan = document.getElementById('content-pelanggan');
+            const contentAdmin = document.getElementById('content-admin');
+
+            if (tab === 'pelanggan') {
+                tabPelanggan.classList.replace('border-transparent', 'border-primary');
+                tabPelanggan.classList.replace('text-gray-400', 'text-primary');
+                tabAdmin.classList.replace('border-primary', 'border-transparent');
+                tabAdmin.classList.replace('text-primary', 'text-gray-400');
+                contentPelanggan.classList.replace('hidden', 'block');
+                contentAdmin.classList.replace('block', 'hidden');
+            } else {
+                tabAdmin.classList.replace('border-transparent', 'border-primary');
+                tabAdmin.classList.replace('text-gray-400', 'text-primary');
+                tabPelanggan.classList.replace('border-primary', 'border-transparent');
+                tabPelanggan.classList.replace('text-primary', 'text-gray-400');
+                contentAdmin.classList.replace('hidden', 'block');
+                contentPelanggan.classList.replace('block', 'hidden');
+            }
+        }
+
+        window.mockGoogleLogin = function() {
+            localStorage.setItem('alnovSession', JSON.stringify({ role: 'user', name: 'User Google' }));
+            closeModal('modal-login');
+            checkAuth();
+            alert("Berhasil login dengan Google!");
+        }
+
+        window.mockAdminLogin = function() {
+            const user = document.getElementById('admin-user').value;
+            if (user === 'admin') {
+                localStorage.setItem('alnovSession', JSON.stringify({ role: 'admin', name: 'Administrator' }));
+                closeModal('modal-login');
+                checkAuth();
+                alert("Berhasil login sebagai Admin!");
+            } else {
+                alert("Username salah!");
+            }
+        }
+
+        window.handleLogout = function() {
+            localStorage.removeItem('alnovSession');
+            document.getElementById('profile-dropdown')?.classList.add('hidden');
+            checkAuth();
+            alert("Anda telah logout.");
+        }
+
+        // === MODAL FUNCTIONS ===
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.addEventListener('click', function handler(e) {
+                if (e.target === modal) {
+                    closeModal(id);
+                    modal.removeEventListener('click', handler);
+                }
+            });
+        }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // === LACAK PESANAN ===
+        async function lacakPesanan() {
+            const playerId = document.getElementById('lacak-player-id').value;
+            const resultDiv = document.getElementById('lacak-result');
+
+            if (!playerId) {
+                resultDiv.innerHTML = `<div class="text-center py-6"><p class="text-sm text-red-400"><i class="ph-fill ph-warning-circle"></i> Masukkan Player ID terlebih dahulu</p></div>`;
+                return;
+            }
+
+            resultDiv.innerHTML = `<div class="text-center py-8"><i class="ph ph-spinner text-3xl text-primary animate-spin block mb-2"></i><p class="text-sm text-gray-400">Mencari pesanan...</p></div>`;
+
+            try {
+                const response = await fetch(`http://localhost:8003/api/orders/player/${playerId}`);
+                if (!response.ok) throw new Error('API Error');
+                const result = await response.json();
+                const orders = result.data;
+
+                if (!orders || orders.length === 0) {
+                    resultDiv.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="ph ph-tray text-4xl text-gray-600 mb-3 block"></i>
+                            <p class="text-sm text-gray-500">Tidak ada pesanan ditemukan untuk Player ID <span class="text-white font-bold">${playerId}</span></p>
+                        </div>`;
+                    return;
+                }
+
+                resultDiv.innerHTML = `
+                    <p class="text-xs text-gray-400 mb-3">Ditemukan <span class="text-primary font-bold">${orders.length}</span> pesanan untuk Player ID <span class="text-white font-semibold">${playerId}</span></p>
+                    ${orders.map((order, i) => `
+                        <div class="bg-white/5 border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">#${order.id}</span>
+                                    <span class="text-xs text-gray-500">${new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${order.status === 'success' ? 'bg-green-500/20 text-green-400' : order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}">
+                                    ${order.status === 'success' ? '<i class="ph-fill ph-check-circle"></i> Berhasil' : order.status === 'pending' ? '<i class="ph-fill ph-clock"></i> Pending' : '<i class="ph-fill ph-x-circle"></i> Gagal'}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 text-xs">
+                                <div>
+                                    <p class="text-gray-500 mb-0.5">Item ID</p>
+                                    <p class="text-white font-semibold">${order.game_item_id}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 mb-0.5">Jumlah</p>
+                                    <p class="text-white font-semibold">${order.quantity}x</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 mb-0.5">Total</p>
+                                    <p class="text-primary font-bold">Rp ${parseFloat(order.total_price).toLocaleString('id-ID')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}`;
+
+            } catch (e) {
+                resultDiv.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="ph ph-wifi-slash text-4xl text-red-400/60 mb-3 block"></i>
+                        <p class="text-sm text-red-400 font-medium mb-1">Gagal terhubung ke server</p>
+                        <p class="text-xs text-gray-500">Pastikan Order Service (port 8003) sedang berjalan</p>
+                    </div>`;
+            }
+        }
+
+        // === CEK PLAYER ID ===
+        async function cekPlayerId() {
+            const playerId = document.getElementById('cek-player-id').value;
+            const resultDiv = document.getElementById('cek-player-result');
+
+            if (!playerId) {
+                resultDiv.innerHTML = `<div class="text-center py-6"><p class="text-sm text-red-400"><i class="ph-fill ph-warning-circle"></i> Masukkan Player ID terlebih dahulu</p></div>`;
+                return;
+            }
+
+            resultDiv.innerHTML = `<div class="text-center py-8"><i class="ph ph-spinner text-3xl text-accent animate-spin block mb-2"></i><p class="text-sm text-gray-400">Mencari player...</p></div>`;
+
+            try {
+                const response = await fetch(`http://localhost:8001/api/players/${playerId}/profile`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        resultDiv.innerHTML = `
+                            <div class="text-center py-8">
+                                <i class="ph ph-user-minus text-4xl text-gray-600 mb-3 block"></i>
+                                <p class="text-sm text-gray-400">Player dengan ID <span class="text-white font-bold">${playerId}</span> tidak ditemukan</p>
+                            </div>`;
+                        return;
+                    }
+                    throw new Error('API Error');
+                }
+                const result = await response.json();
+                const player = result.data;
+
+                resultDiv.innerHTML = `
+                    <div class="bg-gradient-to-br from-accent/10 to-primary/5 border border-white/10 rounded-xl p-5 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-accent/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+                        <div class="flex items-center gap-4 mb-5">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-accent to-primary p-[2px] shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${player.name}&backgroundColor=18181b" class="w-full h-full rounded-2xl bg-bgSurface" alt="Avatar">
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">${player.name}</h4>
+                                <p class="text-xs text-gray-400"><i class="ph ph-envelope-simple"></i> ${player.email}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-black/30 rounded-xl p-3 border border-white/5">
+                                <p class="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-wider">Player ID</p>
+                                <p class="text-white font-bold text-sm">#${player.id}</p>
+                            </div>
+                            <div class="bg-black/30 rounded-xl p-3 border border-white/5">
+                                <p class="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-wider">Saldo Dompet</p>
+                                <p class="text-primary font-bold text-sm">Rp ${parseFloat(player.wallet_balance).toLocaleString('id-ID')}</p>
+                            </div>
+                            <div class="bg-black/30 rounded-xl p-3 border border-white/5 col-span-2">
+                                <p class="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-wider">Terdaftar Sejak</p>
+                                <p class="text-white font-semibold text-sm">${new Date(player.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                            </div>
+                        </div>
+                    </div>`;
+
+            } catch (e) {
+                resultDiv.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="ph ph-wifi-slash text-4xl text-red-400/60 mb-3 block"></i>
+                        <p class="text-sm text-red-400 font-medium mb-1">Gagal terhubung ke server</p>
+                        <p class="text-xs text-gray-500">Pastikan Player Service (port 8001) sedang berjalan</p>
+                    </div>`;
+            }
+        }
+
+        // Enter key support for modals
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('lacak-player-id').addEventListener('keypress', (e) => { if (e.key === 'Enter') lacakPesanan(); });
+            document.getElementById('cek-player-id').addEventListener('keypress', (e) => { if (e.key === 'Enter') cekPlayerId(); });
+        });
+    </script>
+</body>
+</html>

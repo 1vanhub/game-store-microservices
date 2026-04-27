@@ -1,0 +1,13 @@
+Tugas UTS: Sistem Terintegrasi Antar Layanan (Service-to-Service Communication)
+Kelompok: 2
+
+Daftar Anggota Kelompok:
+1. [Nama Anggota 1] - [NIM]
+2. [Nama Anggota 2] - [NIM]
+3. [Nama Anggota 3] - [NIM]
+4. [Nama Anggota 4] - [NIM]
+
+Link Penting:
+- Repository GitHub (Source Code 3 Layanan): [MASUKKAN_LINK_GITHUB_DISINI]
+- Dokumentasi API (Postman Collection): [MASUKKAN_LINK_POSTMAN_DISINI]
+- Video Demonstrasi: [MASUKKAN_LINK_VIDEO_YOUTUBE/DRIVE_DISINI]
