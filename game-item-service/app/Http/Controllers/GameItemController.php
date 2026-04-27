@@ -8,6 +8,17 @@ use Illuminate\Support\Facades\Http;
 
 class GameItemController extends Controller
 {
+    // Provider: List items (optionally filtered by game)
+    public function index(Request $request)
+    {
+        $query = GameItem::query();
+        if ($request->has('game')) {
+            $query->where('game_title', 'LIKE', '%' . $request->query('game') . '%');
+        }
+        $items = $query->orderBy('price', 'asc')->get();
+        return response()->json(['data' => $items], 200);
+    }
+
     // Provider: Get item details
     public function show($id)
     {

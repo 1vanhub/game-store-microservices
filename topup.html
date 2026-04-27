@@ -446,27 +446,31 @@
         const gameConfig = (() => {
             if (gameTitle.includes('Valorant')) return { currency: 'VP', needsZone: false, idPlaceholder: 'Masukkan Riot ID', helperText: 'Untuk mengetahui Riot ID Anda, buka Settings > Account di game Valorant. Contoh: <span class="font-mono text-white">PlayerName#TAG</span>.' };
             if (gameTitle.includes('PUBG')) return { currency: 'UC', needsZone: false, idPlaceholder: 'Masukkan Player ID', helperText: 'Buka Profile di PUBG Mobile, Player ID terlihat di bawah nama Anda. Contoh: <span class="font-mono text-white">51234567890</span>.' };
-            if (gameTitle.includes('League of Legends')) return { currency: 'RP', needsZone: false, idPlaceholder: 'Masukkan Summoner Name', helperText: 'Buka Profile di LoL Client untuk melihat Summoner Name Anda.' };
+            if (gameTitle.includes('League of Legends')) return { currency: 'Wild Cores', needsZone: false, idPlaceholder: 'Masukkan Riot ID', helperText: 'Buka Profile di LoL Wild Rift atau LoL Client untuk melihat Riot ID Anda.' };
             if (gameTitle.includes('Free Fire')) return { currency: 'Diamond', needsZone: false, idPlaceholder: 'Masukkan Player ID', helperText: 'Buka Profile di Free Fire, Player ID terlihat di bawah nama Anda. Contoh: <span class="font-mono text-white">123456789</span>.' };
             return { currency: 'Diamond', needsZone: true, idPlaceholder: 'Masukkan User ID', helperText: 'Untuk mengetahui User ID Anda, klik menu profile di kiri atas pada menu utama game. Contoh: <span class="font-mono text-white">12345678</span> <span class="font-mono text-white">(1234)</span>.' };
         })();
 
-        // Fetch Data Game Items dari GameItemService
+        // Fetch Data Game Items dari GameItemService (per game)
         async function fetchGameItems() {
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 3000);
-                const response = await fetch('http://localhost:8002/api/items/trending', { signal: controller.signal });
+                const response = await fetch(`http://localhost:8002/api/items?game=${encodeURIComponent(gameTitle)}`, { signal: controller.signal });
                 clearTimeout(timeoutId);
                 if(response.ok) {
                     const result = await response.json();
-                    gameItems = result.data.map(d => ({
-                        id: d.item.id,
-                        name: d.item.name,
-                        price: parseFloat(d.item.price),
-                        bonus: "0" 
-                    }));
-                    renderNominals();
+                    if (result.data && result.data.length > 0) {
+                        gameItems = result.data.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            price: parseFloat(item.price),
+                            bonus: "0"
+                        }));
+                        renderNominals();
+                    } else {
+                        useMockItems();
+                    }
                 } else {
                     useMockItems();
                 }
@@ -476,63 +480,63 @@
             }
         }
 
-        // Mock data fallback - nominal per game
+        // Mock data fallback - nominal per game (referensi harga Codashop/Ourastore)
         function useMockItems() {
             if (gameTitle.includes('Mobile Legends')) {
                 gameItems = [
-                    { id: 1, name: '3 Diamond', price: 1500, bonus: "0" },
-                    { id: 2, name: '5 Diamond', price: 1500, bonus: "0" },
-                    { id: 3, name: '12 Diamond', price: 3500, bonus: "0" },
-                    { id: 4, name: '19 Diamond', price: 5500, bonus: "0" },
-                    { id: 5, name: '28 Diamond', price: 7500, bonus: "0" },
-                    { id: 6, name: '44 Diamond', price: 12000, bonus: "0" },
-                    { id: 7, name: '59 Diamond', price: 16000, bonus: "0" },
-                    { id: 8, name: '85 Diamond', price: 23000, bonus: "0" },
-                    { id: 9, name: '170 Diamond', price: 46000, bonus: "0" },
-                    { id: 10, name: '240 Diamond', price: 63000, bonus: "0" },
-                    { id: 11, name: '296 Diamond', price: 79000, bonus: "0" },
-                    { id: 12, name: '568 Diamond', price: 149000, bonus: "0" },
-                    { id: 13, name: '875 Diamond', price: 229000, bonus: "0" },
-                    { id: 14, name: '2010 Diamond', price: 529000, bonus: "0" },
+                    { id: 1, name: '3 Diamonds', price: 1500, bonus: "0" },
+                    { id: 2, name: '5 Diamonds', price: 1500, bonus: "0" },
+                    { id: 3, name: '14 (13+1) Diamonds', price: 3600, bonus: "1" },
+                    { id: 4, name: '27 (25+2) Diamonds', price: 7600, bonus: "2" },
+                    { id: 5, name: '57 (53+4) Diamonds', price: 15200, bonus: "4" },
+                    { id: 6, name: '86 (78+8) Diamonds', price: 22800, bonus: "8" },
+                    { id: 7, name: '172 (156+16) Diamonds', price: 45600, bonus: "16" },
+                    { id: 8, name: '257 (234+23) Diamonds', price: 62700, bonus: "23" },
+                    { id: 9, name: '344 (312+32) Diamonds', price: 83600, bonus: "32" },
+                    { id: 10, name: '514 (468+46) Diamonds', price: 121600, bonus: "46" },
+                    { id: 11, name: '706 (625+81) Diamonds', price: 159600, bonus: "81" },
+                    { id: 12, name: '2195 (2010+185) Diamonds', price: 479600, bonus: "185" },
+                    { id: 13, name: '4394 (4020+374) Diamonds', price: 959600, bonus: "374" },
                 ];
             } else if (gameTitle.includes('Free Fire')) {
                 gameItems = [
-                    { id: 1, name: '5 Diamond', price: 1500, bonus: "0" },
-                    { id: 2, name: '12 Diamond', price: 3000, bonus: "0" },
-                    { id: 3, name: '50 Diamond', price: 10000, bonus: "0" },
-                    { id: 4, name: '70 Diamond', price: 14000, bonus: "0" },
-                    { id: 5, name: '140 Diamond', price: 28000, bonus: "0" },
-                    { id: 6, name: '355 Diamond', price: 70000, bonus: "0" },
-                    { id: 7, name: '720 Diamond', price: 140000, bonus: "0" },
-                    { id: 8, name: '1450 Diamond', price: 280000, bonus: "0" },
+                    { id: 1, name: '5 Diamonds', price: 1500, bonus: "0" },
+                    { id: 2, name: '12 Diamonds', price: 3000, bonus: "0" },
+                    { id: 3, name: '50 Diamonds', price: 7500, bonus: "0" },
+                    { id: 4, name: '70 Diamonds', price: 10000, bonus: "0" },
+                    { id: 5, name: '140 Diamonds', price: 20000, bonus: "0" },
+                    { id: 6, name: '355 Diamonds', price: 50000, bonus: "0" },
+                    { id: 7, name: '720 Diamonds', price: 100000, bonus: "0" },
+                    { id: 8, name: '1450 Diamonds', price: 200000, bonus: "0" },
+                    { id: 9, name: '2180 Diamonds', price: 300000, bonus: "0" },
                 ];
             } else if (gameTitle.includes('Valorant')) {
                 gameItems = [
-                    { id: 1, name: '125 VP', price: 15000, bonus: "0" },
-                    { id: 2, name: '420 VP', price: 50000, bonus: "0" },
-                    { id: 3, name: '700 VP', price: 80000, bonus: "0" },
-                    { id: 4, name: '1375 VP', price: 150000, bonus: "25" },
-                    { id: 5, name: '2400 VP', price: 250000, bonus: "50" },
-                    { id: 6, name: '4000 VP', price: 400000, bonus: "100" },
-                    { id: 7, name: '8150 VP', price: 800000, bonus: "250" },
+                    { id: 1, name: '475 VP', price: 56000, bonus: "0" },
+                    { id: 2, name: '1000 VP', price: 112000, bonus: "0" },
+                    { id: 3, name: '2050 VP', price: 224000, bonus: "50" },
+                    { id: 4, name: '3650 VP', price: 389000, bonus: "150" },
+                    { id: 5, name: '5350 VP', price: 559000, bonus: "350" },
+                    { id: 6, name: '11000 VP', price: 1099000, bonus: "1000" },
                 ];
             } else if (gameTitle.includes('PUBG')) {
                 gameItems = [
-                    { id: 1, name: '60 UC', price: 15000, bonus: "0" },
-                    { id: 2, name: '325 UC', price: 75000, bonus: "25" },
-                    { id: 3, name: '660 UC', price: 150000, bonus: "60" },
-                    { id: 4, name: '1800 UC', price: 375000, bonus: "200" },
-                    { id: 5, name: '3850 UC', price: 750000, bonus: "500" },
-                    { id: 6, name: '8100 UC', price: 1500000, bonus: "1200" },
+                    { id: 1, name: '60 UC', price: 16000, bonus: "0" },
+                    { id: 2, name: '325 UC', price: 79000, bonus: "25" },
+                    { id: 3, name: '660 UC', price: 159000, bonus: "60" },
+                    { id: 4, name: '1800 UC', price: 399000, bonus: "200" },
+                    { id: 5, name: '3850 UC', price: 799000, bonus: "500" },
+                    { id: 6, name: '8100 UC', price: 1599000, bonus: "1200" },
                 ];
             } else if (gameTitle.includes('League of Legends')) {
                 gameItems = [
-                    { id: 1, name: '420 RP', price: 50000, bonus: "0" },
-                    { id: 2, name: '720 RP', price: 80000, bonus: "0" },
-                    { id: 3, name: '1400 RP', price: 150000, bonus: "40" },
-                    { id: 4, name: '2450 RP', price: 250000, bonus: "100" },
-                    { id: 5, name: '4100 RP', price: 400000, bonus: "200" },
-                    { id: 6, name: '8400 RP', price: 800000, bonus: "500" },
+                    { id: 1, name: '125 Wild Cores', price: 16000, bonus: "0" },
+                    { id: 2, name: '250 Wild Cores', price: 32000, bonus: "0" },
+                    { id: 3, name: '525 Wild Cores', price: 65000, bonus: "25" },
+                    { id: 4, name: '1050 Wild Cores', price: 129000, bonus: "50" },
+                    { id: 5, name: '2200 Wild Cores', price: 259000, bonus: "200" },
+                    { id: 6, name: '3500 Wild Cores', price: 399000, bonus: "500" },
+                    { id: 7, name: '5350 Wild Cores', price: 599000, bonus: "850" },
                 ];
             } else {
                 const c = gameConfig.currency;
@@ -554,7 +558,13 @@
         };
 
         const getGameCurrencyIcon = () => {
-            return `<img src="${gameIcon}" alt="${gameConfig.currency}" referrerpolicy="no-referrer" class="w-5 h-5 rounded object-cover drop-shadow-[0_0_5px_rgba(255,136,0,0.5)]">`;
+            if (gameConfig.currency === 'Diamond') {
+                return `<i class="ph-fill ph-sketch-logo text-blue-400 text-lg sm:text-xl drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]"></i>`;
+            } else if (gameConfig.currency === 'VP') {
+                return `<i class="ph-fill ph-target text-red-500 text-lg sm:text-xl drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]"></i>`;
+            } else {
+                return `<i class="ph-fill ph-coin text-yellow-500 text-lg sm:text-xl drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]"></i>`;
+            }
         };
 
         // Render List Nominal ke dalam Grid (Step 2)
@@ -773,16 +783,24 @@
             let apiSuccess = false;
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
                 const response = await fetch('http://localhost:8003/api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ player_id: parseInt(userId), game_item_id: purchasedItem.id, quantity: 1 }),
+                    body: JSON.stringify({
+                        player_id: parseInt(userId),
+                        game_item_id: purchasedItem.id,
+                        quantity: 1,
+                        game_title: gameTitle,
+                        item_name: purchasedItem.name,
+                        player_name: playerName,
+                        total_price: purchasedItem.price
+                    }),
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
                 if(response.ok || response.status === 201) apiSuccess = true;
-            } catch(e) { /* API unavailable, proceed with local purchase */ }
+            } catch(e) { console.warn('Order API unavailable:', e.message); }
 
             // Process purchase (works even without API)
             playerBalance -= purchasedItem.price;
@@ -854,16 +872,25 @@
             // Update banner
             const bannerImg = document.querySelector('.relative.w-full img');
             if(bannerImg) { bannerImg.src = gameCover; bannerImg.alt = `${gameTitle} Banner`; }
-            // Update game icon
-            const iconEl = document.getElementById('game-icon');
-            if(iconEl) { iconEl.src = gameIcon; iconEl.alt = `${gameTitle} Icon`; }
-            // Update game title
-            const titleEl = document.querySelector('#step-1')?.closest('.lg\\:col-span-8')?.previousElementSibling?.querySelector('h1') 
+            
+            // Update title
+            const titleEl = document.querySelector('h1.text-xl') 
+                          || document.querySelector('h1.text-2xl') 
                           || document.querySelector('h1');
             if(titleEl) titleEl.innerText = gameTitle;
             // Update developer
             const devEl = titleEl?.nextElementSibling;
             if(devEl && devEl.tagName === 'P') devEl.innerText = gameDev;
+            
+            // Update game icon
+            const gameIconEl = document.getElementById('game-icon');
+            if (gameIconEl) {
+                gameIconEl.src = gameIcon;
+                // Fallback to cover if icon fails
+                gameIconEl.onerror = function() {
+                    this.src = gameCover || 'assets/logo.png';
+                };
+            }
 
             // Setup game-specific UI (zone ID, instructions, helper text)
             if (!gameConfig.needsZone) {

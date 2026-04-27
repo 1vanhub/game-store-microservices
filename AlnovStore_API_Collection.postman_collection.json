@@ -30,6 +30,11 @@
 			"key": "item_id",
 			"value": "1",
 			"type": "string"
+		},
+		{
+			"key": "game_title",
+			"value": "Mobile Legends",
+			"type": "string"
 		}
 	],
 	"item": [
@@ -91,6 +96,25 @@
 			"name": "2. Game Item Service (Port 8002)",
 			"description": "Service untuk mengelola data item/currency game: detail item, stok, dan trending items.",
 			"item": [
+				{
+					"name": "Get Items by Game",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{item_service_url}}/items?game={{game_title}}",
+							"host": ["{{item_service_url}}"],
+							"path": ["items"],
+							"query": [
+								{ "key": "game", "value": "{{game_title}}" }
+							]
+						},
+						"description": "Mengambil daftar item spesifik untuk game tertentu.\nDigunakan di halaman top up untuk menampilkan nominal harga realistis."
+					},
+					"response": []
+				},
 				{
 					"name": "Get Trending Items",
 					"request": {
